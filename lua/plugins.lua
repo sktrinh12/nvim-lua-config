@@ -24,5 +24,8 @@ vim.call('plug#begin', '~/.config/nvim/plugged')
   Plug 'edluffy/specs.nvim'
   Plug 'lukas-reineke/lsp-format.nvim'
   Plug 'smbl64/vim-black-macchiato'
+  Plug 'onsails/lspkind.nvim'
+  Plug ('tzachar/cmp-tabnine', {['do'] = './install.sh' })
+  Plug ('L3MON4D3/LuaSnip', {['tag'] = 'v<CurrentMajor>.*'})
 
 vim.call('plug#end')
