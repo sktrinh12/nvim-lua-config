@@ -27,5 +27,6 @@ vim.call('plug#begin', '~/.config/nvim/plugged')
   Plug 'onsails/lspkind.nvim'
   Plug ('tzachar/cmp-tabnine', {['do'] = './install.sh' })
   Plug ('L3MON4D3/LuaSnip', {['tag'] = 'v<CurrentMajor>.*'})
+  Plug 'jose-elias-alvarez/null-ls.nvim'
 
 vim.call('plug#end')
