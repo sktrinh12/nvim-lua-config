@@ -45,7 +45,8 @@ vim.keymap.set('n', '<Leader>p', ':silent %!prettier --stdin-filepath %<CR>')
 
 require('plugins')
 require('format-config')
+require('luasnip').filetype_extend("javascript", { "javascriptreact", "html" })
+-- require('luasnip').filetype_extend("javascript", { "html" })
 
--- require('dracula').setup {}
 set.foldmethod = "expr"
 set.foldexpr = "nvim_treesitter#foldexpr()"
