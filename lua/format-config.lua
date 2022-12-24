@@ -1,6 +1,4 @@
 local null_ls = require("null-ls")
-local formatting = null_ls.builtins.formatting
-local diagnostics = null_ls.builtins.diagnostics
 
 
 local lspkind = require('lspkind')
@@ -57,15 +55,17 @@ local cmp = require'cmp'
       -- ['<S-Tab>'] = cmp.mapping.select_prev_item({behavior=cmp.SelectBehavior.Insert}),
 			["<Tab>"] = cmp.mapping(function(fallback)
             local luasnip = require "luasnip"
-            if cmp.visible() then
-                cmp.select_next_item()
-            elseif luasnip.expand_or_jumpable() then
-                luasnip.expand_or_jump()
-            elseif has_words_before() then
-                cmp.complete()
-            else
-                fallback()
-            end
+						if cmp.visible() then
+							cmp.select_next_item()
+						elseif luasnip.jumpable(1) then
+							luasnip.jump(1)
+						elseif luasnip.expand_or_jumpable() then
+							luasnip.expand_or_jump()
+						elseif luasnip.expandable() then
+							luasnip.expand()
+						else
+							fallback()
+						end
         end, { "i", "s" }),
 			["<S-Tab>"] = cmp.mapping(function(fallback)
             local luasnip = require "luasnip"
@@ -194,22 +194,21 @@ null_ls.setup({
 			end
     end,
     sources = {
-        formatting.prettier.with({ extra_args = { "--no-semi", "--single-quote", "--jsx-single-quote"}}),
-        formatting.black.with({ extra_args = { "--fast" }}),
-        diagnostics.eslint,
-				diagnostics.flake8
+				null_ls.builtins.formatting.prettier.with({ extra_args = { "--no-semi", "--single-quote", "--jsx-single-quote"}}),
+        null_ls.builtins.formatting.black,
+				null_ls.builtins.formatting.shfmt,
+        null_ls.builtins.diagnostics.eslint,
+				null_ls.builtins.diagnostics.flake8,
     },
 })
 
 -- Enable the following language servers
 local servers = {
-  "bashls",
-  "dockerls",
-  "jsonls",
   "pyright",
   "sqls",
   "vimls",
-  "yamlls"
+  "yamlls",
+	"tsserver"
 }
 
 for _, lsp in ipairs(servers) do
