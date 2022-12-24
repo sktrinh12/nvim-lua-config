@@ -207,8 +207,7 @@ local servers = {
   "pyright",
   "sqls",
   "vimls",
-  "yamlls",
-	"tsserver"
+  "yamlls"
 }
 
 for _, lsp in ipairs(servers) do
