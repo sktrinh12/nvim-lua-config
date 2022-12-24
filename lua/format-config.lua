@@ -1,8 +1,8 @@
--- Formatters
+local null_ls = require("null-ls")
+local formatting = null_ls.builtins.formatting
+local diagnostics = null_ls.builtins.diagnostics
 
--- vim.api.nvim_command([[
--- 				au FileType *.R :setlocal shiftwidth=2 tabstop=2 expandtab
--- ]])
+
 local lspkind = require('lspkind')
 
 local tabnine = require 'cmp_tabnine.config'
@@ -162,13 +162,48 @@ require('specs').setup{
 -- Setup lspconfig.
 local nvim_lsp = require 'lspconfig'
 local capabilities = vim.lsp.protocol.make_client_capabilities()
--- capabilities = require("cmp_nvim_lsp").update_capabilities(capabilities)
 capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
+
+-- automatically select lang server instead of prompt
+local lsp_formatting = function(bufnr)
+    vim.lsp.buf.format({
+        filter = function(client)
+            -- apply whatever logic you want (in this example, we'll only use null-ls)
+            return client.name == "null-ls"
+        end,
+        bufnr = bufnr,
+    })
+end
+
+-- if you want to set up formatting on save, you can use this as a callback
+local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
+
+-- add to your shared on_attach callback
+null_ls.setup({
+		debug = false,
+		on_attach = function(client, bufnr)
+			if client.supports_method("textDocument/formatting") then
+					vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
+					vim.api.nvim_create_autocmd("BufWritePre", {
+							group = augroup,
+							buffer = bufnr,
+							callback = function()
+									lsp_formatting(bufnr)
+							end,
+					})
+			end
+    end,
+    sources = {
+        formatting.prettier.with({ extra_args = { "--no-semi", "--single-quote", "--jsx-single-quote"}}),
+        formatting.black.with({ extra_args = { "--fast" }}),
+        diagnostics.eslint,
+				diagnostics.flake8
+    },
+})
 
 -- Enable the following language servers
 local servers = {
   "bashls",
-  "cssls",
   "dockerls",
   "jsonls",
   "pyright",
@@ -185,23 +220,3 @@ for _, lsp in ipairs(servers) do
 end
 
 vim.cmd[[au VimEnter * highlight ColorColumn guibg=#171717]]
--- local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
---   nvim_lsp['pyright'].setup {
---     capabilities = capabilities
--- }
-
-require'lsp-format'.setup {
-			  javascript = { cmd = { "prettier -w"}},
-			  javascriptreact = { cmd = { "prettier -w"}},
-			  html = { cmd = { "prettier -w"}}
-}
-
--- nvim_lsp.gopls.setup { on_attach = require "lsp-format".on_attach }
-
--- vim.api.nvim_command[[autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync()]]
---vim.api.nvim_exec([[
--- augroup FormatAutogroup
---   autocmd!
--- 	  autocmd BufWritePost *.js,*.py,*.lua,*.html,*.css,*.json,*.md FormatWrite
--- 	augroup END
--- ]], true)
